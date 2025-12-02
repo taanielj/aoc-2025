@@ -25,3 +25,17 @@ func ReadLinesFromFile(filePath string) ([]string, error) {
 	}
 	return lines, nil
 }
+
+func SplitString(s string, sep string) []string {
+	var result []string
+	start := 0
+	for i := 0; i < len(s); i++ {
+		if string(s[i]) == sep {
+			result = append(result, s[start:i])
+			start = i + 1
+		}
+	}
+	result = append(result, s[start:])
+	return result
+}
+
