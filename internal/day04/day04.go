@@ -21,9 +21,16 @@ func SolveDay04() {
 
 	grid := getGridFromLines(lines)
 	fmt.Println("Day 04 Solution:")
-	accessibleCount := getAccessibleShelves(grid, allowedNeighbors)
 
-	fmt.Printf("Number of accessible shelves: %d\n", accessibleCount)
+	rollsOfPaper := 0
+	for {
+		collected := gatherRolls(grid, allowedNeighbors)
+		if collected == 0 {
+			break
+		}
+		rollsOfPaper += collected
+	}
+	fmt.Printf("Number of rolls of paper needed: %d\n", rollsOfPaper)
 }
 
 func getGridFromLines(lines []string) shelfGrid {
@@ -47,37 +54,23 @@ func getGridFromLines(lines []string) shelfGrid {
 	}
 }
 
-func getAccessibleShelves(grid shelfGrid, allowedNeighbors int) int {
-	accessibleCount := 0
+func gatherRolls(grid shelfGrid, allowedNeighbors int) int {
+	rollsOfPaper := 0
 
 	for i := 0; i < grid.height; i++ {
 		for j := 0; j < grid.width; j++ {
 			if grid.cells[i][j] {
 				neighbors := countNeighbors(grid, i, j)
 				if neighbors < allowedNeighbors {
-					accessibleCount++
+					rollsOfPaper++
+					grid.cells[i][j] = false
 				}
-				renderCell(true, neighbors, allowedNeighbors)
-			} else {
-				renderCell(false, 0, allowedNeighbors)
+
 			}
 		}
-		fmt.Println()
 	}
-
-	return accessibleCount
-}
-
-func renderCell(hasPaper bool, neighbors, limit int) {
-	if !hasPaper {
-		fmt.Print(".")
-		return
-	}
-	if neighbors < limit {
-		fmt.Print("x")
-		return
-	}
-	fmt.Print("@")
+	fmt.Printf(" Rolls collected this round: %d\n", rollsOfPaper)
+	return rollsOfPaper
 }
 
 func countNeighbors(grid shelfGrid, row, col int) int {
