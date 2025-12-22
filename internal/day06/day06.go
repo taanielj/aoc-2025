@@ -3,9 +3,7 @@ package day06
 import (
 	"aoc2025/internal/utils"
 	"fmt"
-	// "sort"
-	// "strconv"
-	"strings"
+	// "strings"
 )
 
 // https://gobyexample.com/enums
@@ -13,18 +11,16 @@ import (
 type Operator int
 
 const (
-	Add Operator = iota
+	Unset Operator = iota
+	Add
 	Multiply
 )
 
-var operationSymbols = map[Operator]string{
-	Add:      "+",
-	Multiply: "*",
-}
-
 type mathProblem struct {
-	operands []int
-	operator Operator
+	operands     []int
+	operator     Operator
+	position     int
+	operandCount int
 }
 
 func SolveDay06() {
@@ -33,45 +29,76 @@ func SolveDay06() {
 		fmt.Println("Error reading input file:", err)
 		panic(err)
 	}
-	problems := getPart1Problems(lines)
+	problems := getProblems(lines)
 	totalSum := 0
 	for _, problem := range problems {
 		result := solveProblem(problem)
 		totalSum += result
 	}
-	fmt.Println("Day 06 part 1 solution:", totalSum)
+	fmt.Println("Day 06 part 2 solution:", totalSum)
+
 }
 
-func getPart1Problems(lines []string) []mathProblem {
-	// last line is operators
-	operatorLine := lines[len(lines)-1]
-	operators := parseOperatorLine(operatorLine)
-	problems := make([]mathProblem, 0, len(operators))
-	for i, operator := range operators {
-		problem := mathProblem{
-			operator: operator,
-			operands: make([]int, 0),
+func getProblems(lines []string) []mathProblem {
+
+	problems := parseOperatorLine(lines[len(lines)-1])
+	lines = lines[:len(lines)-1]
+	for idx := range problems {
+		operands := make([]int, 0)
+		for i := problems[idx].operandCount - 1; i >= 0; i-- {
+			operand := ""
+			for _, line := range lines {
+				char := rune(line[problems[idx].position+i])
+				if char == ' ' {
+					continue
+				}
+				operand += string(char)
+			}
+			value := utils.MustAtoi(operand)
+			operands = append(operands, value)
 		}
-		for _, line := range lines[:len(lines)-1] {
-			fields := strings.Fields(line)
-			problem.operands = append(problem.operands, utils.MustAtoi(fields[i]))
-		}
-		problems = append(problems, problem)
+		problems[idx].operands = operands
 	}
+
 	return problems
 }
 
-func parseOperatorLine(line string) []Operator {
-	symbols := strings.Fields(line)
-	operators := make([]Operator, 0, len(symbols))
-	for _, symbol := range symbols {
-		for op, sym := range operationSymbols {
-			if sym == symbol {
-				operators = append(operators, op)
-			}
-		}
+func parseOperator(char rune) Operator {
+	switch char {
+	case '+':
+		return Add
+	case '*':
+		return Multiply
+	default:
+		return Unset
 	}
-	return operators
+}
+
+func parseOperatorLine(line string) []mathProblem {
+	// parse line char by char, don't trim spaces, otherwise we lose position info
+	problems := make([]mathProblem, 0)
+	currentProblem := mathProblem{}
+	currentProblem.operator = Unset
+	currentProblem.operandCount = 1
+	for i := len(line) - 1; i >= 0; i-- {
+		operator := parseOperator(rune(line[i]))
+		if operator == Unset {
+			currentProblem.operandCount++
+			continue
+		}
+		currentProblem.position = i
+		currentProblem.operator = operator
+		problems = append(problems, currentProblem)
+		currentProblem = mathProblem{}
+		currentProblem.operator = Unset
+		currentProblem.operandCount = 1
+		i--
+
+	}
+	currentProblem.position = 0
+	currentProblem.operator = parseOperator(rune(line[0])) 
+	problems = append(problems, currentProblem)
+	return problems
 }
 
 func solveProblem(problem mathProblem) int {
@@ -87,7 +114,8 @@ func solveProblem(problem mathProblem) int {
 			result *= operand
 		}
 	default:
-		panic("Unknown operator")
+		println("Unset operator in problem:", problem.operator)
+		return 0
 	}
 	return result
 }
