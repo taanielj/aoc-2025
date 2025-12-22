@@ -2,6 +2,7 @@ package utils
 
 import "bufio"
 import "os"
+import "strconv"
 
 func ReadLinesFromFile(filePath string) ([]string, error) {
 	file, err := os.Open(filePath)
@@ -39,3 +40,10 @@ func SplitString(s string, sep string) []string {
 	return result
 }
 
+func MustAtoi(s string) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		panic(err)
+	}
+	return i
+}

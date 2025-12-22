@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"time"
 
 	"aoc2025/internal/day01"
 	"aoc2025/internal/day02"
 	"aoc2025/internal/day03"
 	"aoc2025/internal/day04"
+	"aoc2025/internal/day05"
 )
 
 type solver func()
@@ -19,6 +21,7 @@ var solvers = map[int]solver{
 	2: day02.SolveDay02,
 	3: day03.SolveDay03,
 	4: day04.SolveDay04,
+	5: day05.SolveDay05,
 }
 
 func main() {
@@ -38,7 +41,9 @@ func main() {
 	if *all {
 		for _, d := range sortedDays() {
 			fmt.Printf("== Day %02d ==\n", d)
+			start := time.Now()
 			solvers[d]()
+			fmt.Printf("Elapsed: %v\n\n", time.Since(start))
 		}
 		return
 	}
@@ -55,7 +60,9 @@ func main() {
 		os.Exit(2)
 	}
 
+	start := time.Now()
 	run()
+	fmt.Printf("Elapsed: %v\n", time.Since(start))
 }
 
 func sortedDays() []int {
