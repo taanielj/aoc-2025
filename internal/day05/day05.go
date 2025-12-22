@@ -3,6 +3,7 @@ package day05
 import (
 	"aoc2025/internal/utils"
 	"fmt"
+	"sort"
 	"strconv"
 )
 
@@ -24,6 +25,13 @@ func SolveDay05() {
 	fmt.Printf("Number of ranges: %d\n", len(ranges))
 	fmt.Printf("Number of items: %d\n", len(items))
 	fmt.Printf("Number of fresh items: %d\n", freshItemCount)
+
+	mergedRanges := mergeRanges(ranges)
+	possibleFreshItemCount := countPossibleFreshItems(mergedRanges)
+
+	fmt.Println("Day 05 Part 2 Solution:")
+	fmt.Printf("Number of merged ranges: %d\n", len(mergedRanges))
+	fmt.Printf("Number of possible fresh items: %d\n", possibleFreshItemCount)
 }
 
 func getFreshRanges(lines []string) []freshRange {
@@ -41,6 +49,28 @@ func getFreshRanges(lines []string) []freshRange {
 
 	}
 	return freshRanges
+}
+
+func mergeRanges(ranges []freshRange) []freshRange {
+	// sort by start
+	sort.Slice(ranges, func(i, j int) bool {
+		return ranges[i].start < ranges[j].start
+	})
+
+	merged := []freshRange{ranges[0]}
+	for _, currentRange := range ranges[1:] {
+		lastRange := &merged[len(merged)-1]
+		if currentRange.start <= lastRange.end {
+			if currentRange.end > lastRange.end {
+				lastRange.end = currentRange.end
+			}
+
+		} else {
+			merged = append(merged, currentRange)
+		}
+	}
+
+	return merged
 }
 
 func getItems(lines []string) []int {
@@ -66,4 +96,12 @@ func countFreshItems(items []int, freshRanges []freshRange) int {
 		}
 	}
 	return freshCount
+}
+
+func countPossibleFreshItems(freshRanges []freshRange) int {
+	count := 0
+	for _, fr := range freshRanges {
+		count += fr.end - fr.start + 1
+	}
+	return count
 }
