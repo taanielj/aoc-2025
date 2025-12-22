@@ -12,6 +12,7 @@ import (
 	"aoc2025/internal/day03"
 	"aoc2025/internal/day04"
 	"aoc2025/internal/day05"
+	"aoc2025/internal/day06"
 )
 
 type solver func()
@@ -22,6 +23,7 @@ var solvers = map[int]solver{
 	3: day03.SolveDay03,
 	4: day04.SolveDay04,
 	5: day05.SolveDay05,
+	6: day06.SolveDay06,
 }
 
 func main() {
@@ -73,4 +75,3 @@ func sortedDays() []int {
 	sort.Ints(days)
 	return days
 }
-

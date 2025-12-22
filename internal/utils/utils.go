@@ -3,7 +3,6 @@ package utils
 import "bufio"
 import "os"
 import "strconv"
-
 func ReadLinesFromFile(filePath string) ([]string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
